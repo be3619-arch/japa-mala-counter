@@ -1,0 +1,18 @@
+{
+  "name": "Japa Mala - Digital Mantra Counter",
+  "short_name": "Japa Mala",
+  "description": "A calm, respectful digital mantra counter for ISKCON devotees chanting the Hare Krishna Maha Mantra.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FAF7EE",
+  "theme_color": "#B45309",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

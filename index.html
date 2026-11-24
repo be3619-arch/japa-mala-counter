@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#b45309">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Japa Mala">
+  <meta name="description" content="A calm, respectful, mobile-friendly digital japa counter for chanting the Hare Krishna Maha Mantra.">
+  <title>Japa Mala - Digital Mantra Counter</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app" class="app-container">
+    
+    <!-- Top Header Bar -->
+    <header class="top-nav">
+      <div class="brand">
+        <span class="sacred-symbol">🪷</span>
+        <div class="brand-text">
+          <h1>Japa Mala</h1>
+          <span class="subtext">Hare Krishna Counter</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Sound Toggle -->
+        <button id="btn-sound-toggle" class="icon-btn" aria-label="Toggle Sound" title="Sound On/Off">
+          <span class="icon">🔔</span>
+        </button>
+        <!-- Haptic Vibration Toggle -->
+        <button id="btn-vibrate-toggle" class="icon-btn" aria-label="Toggle Vibration" title="Vibration On/Off">
+          <span class="icon">📳</span>
+        </button>
+        <!-- History Drawer Button -->
+        <button id="btn-history-open" class="icon-btn" aria-label="View History" title="Daily History">
+          <span class="icon">📜</span>
+        </button>
+        <!-- Settings Button -->
+        <button id="btn-settings-open" class="icon-btn" aria-label="Settings" title="Settings & Options">
+          <span class="icon">⚙️</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Maha Mantra Banner (Collapsible) -->
+    <section class="mantra-banner-card" id="mantra-banner">
+      <div class="mantra-header" id="btn-toggle-mantra">
+        <span class="mantra-label">✨ Maha Mantra Guide</span>
+        <span class="toggle-arrow" id="mantra-arrow">▲</span>
+      </div>
+      <div class="mantra-body" id="mantra-content">
+        <p class="pancha-tattva">
+          <em>jaya śrī-kṛṣṇa-caitanya prabhu-nityānanda śrī-advaita gadādhara śrīvāsādi-gaura-bhakta-vṛnda</em>
+        </p>
+        <p class="maha-mantra">
+          <strong>Hare Kṛṣṇa, Hare Kṛṣṇa, Kṛṣṇa Kṛṣṇa, Hare Hare<br>
+          Hare Rāma, Hare Rāma, Rāma Rāma, Hare Hare</strong>
+        </p>
+      </div>
+    </section>
+
+    <!-- Main Chanting & Bead Display Area -->
+    <main class="counter-stage">
+      
+      <!-- Top Session Summary -->
+      <div class="session-stats-bar">
+        <div class="stat-pill" id="stat-rounds-pill">
+          <span class="stat-title">ROUNDS</span>
+          <span class="stat-number" id="display-rounds">0</span>
+          <span class="stat-target" id="display-target">/ 16</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-title">LIFETIME</span>
+          <span class="stat-number" id="display-lifetime">0</span>
+        </div>
+      </div>
+
+      <!-- Bead Progress Ring & Interactive Tap Bead -->
+      <div class="bead-tracker-wrapper">
+        <svg class="progress-ring" viewBox="0 0 280 280">
+          <circle class="ring-track" cx="140" cy="140" r="120" />
+          <circle class="ring-progress" id="progress-circle" cx="140" cy="140" r="120" />
+        </svg>
+
+        <!-- Tap Button Bead -->
+        <button id="btn-chant-tap" class="main-bead-button" aria-label="Chant Bead Counter">
+          <div class="bead-inner-content">
+            <span class="bead-label">BEAD</span>
+            <span class="bead-number" id="display-bead">0</span>
+            <span class="bead-total">OF 108</span>
+            <span class="tap-hint">TAP TO CHANT</span>
+          </div>
+          <div class="bead-ripple-container" id="ripple-container"></div>
+        </button>
+      </div>
+
+      <!-- Quick Feedback Notice -->
+      <div class="status-message" id="status-message">
+        <span>Touch to chant • Round progress saved</span>
+      </div>
+
+      <!-- Bottom Action Controls Bar -->
+      <section class="controls-action-bar">
+        <!-- Undo Button -->
+        <button id="btn-undo" class="pill-action-btn undo-btn" title="Undo accidental tap">
+          <span class="btn-icon">↩</span>
+          <span class="btn-text">Undo</span>
+        </button>
+
+        <!-- Fullscreen Tap Mode Toggle -->
+        <button id="btn-fullscreen-toggle" class="pill-action-btn fullscreen-btn" title="Chant by tapping anywhere on screen">
+          <span class="btn-icon">⛶</span>
+          <span class="btn-text">Full Screen</span>
+        </button>
+
+        <!-- Reset Current Round -->
+        <button id="btn-reset-round" class="pill-action-btn reset-round-btn" title="Reset current round to 0">
+          <span class="btn-icon">↺</span>
+          <span class="btn-text">Reset Round</span>
+        </button>
+      </section>
+
+    </main>
+
+    <!-- Full-Screen Tap Overlay -->
+    <div id="fullscreen-overlay" class="fullscreen-overlay hidden">
+      <div class="fs-header">
+        <span class="fs-badge">Full Screen Chanting Mode</span>
+        <button id="btn-fs-exit" class="fs-exit-btn">Exit ✕</button>
+      </div>
+      <div class="fs-center-content">
+        <div class="fs-rounds-info">
+          Round <span id="fs-display-rounds">0</span> of <span id="fs-display-target">16</span>
+        </div>
+        <div class="fs-bead-number" id="fs-display-bead">0</div>
+        <div class="fs-total-label">of 108 beads</div>
+        <p class="fs-instruction">Tap anywhere on the screen to chant</p>
+      </div>
+      <div class="fs-footer">
+        <button id="btn-fs-undo" class="fs-undo-btn">↩ Undo Tap</button>
+      </div>
+    </div>
+
+    <!-- Sumeru / Round Complete Modal -->
+    <div id="modal-sumeru" class="modal-backdrop hidden">
+      <div class="modal-card sumeru-card">
+        <div class="sumeru-ornament">🪷 ॐ 🪷</div>
+        <h2 class="modal-title">Haribol! Round Complete</h2>
+        <div class="sumeru-badge">
+          Round <span id="sumeru-round-num">1</span> Finished!
+        </div>
+        <div class="sumeru-guidance">
+          <p class="guidance-bold">Respecting the Head Bead (Sumeru):</p>
+          <p class="guidance-text">
+            When completing 108 beads, devotees turn the mala around in their hand and chant backward without crossing over the Krishna / Sumeru head bead.
+          </p>
+          <div class="quote-box">
+            "By chanting the Holy Name, one becomes cleansed of all material contamination and develops pure love for Sri Sri Radha and Krishna."
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button id="btn-start-next-round" class="btn-primary">
+            Begin Next Round (Bead 1)
+          </button>
+          <button id="btn-close-sumeru" class="btn-secondary">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirmation Modal (For resets) -->
+    <div id="modal-confirm" class="modal-backdrop hidden">
+      <div class="modal-card confirm-card">
+        <div class="modal-icon" id="confirm-icon">⚠️</div>
+        <h2 class="modal-title" id="confirm-title">Are you sure?</h2>
+        <p class="modal-desc" id="confirm-message">This action cannot be undone.</p>
+        <div class="modal-actions">
+          <button id="btn-confirm-yes" class="btn-danger">Yes, Proceed</button>
+          <button id="btn-confirm-cancel" class="btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Daily History Drawer Modal -->
+    <div id="modal-history" class="modal-backdrop hidden">
+      <div class="drawer-card">
+        <div class="drawer-header">
+          <div class="drawer-title">
+            <span class="icon">📜</span>
+            <h2>Chanting History</h2>
+          </div>
+          <button id="btn-history-close" class="close-btn" aria-label="Close History">✕</button>
+        </div>
+
+        <div class="drawer-body">
+          <div class="today-highlight-box">
+            <div class="highlight-label">Today's Sadhana</div>
+            <div class="highlight-grid">
+              <div class="highlight-item">
+                <span class="num" id="history-today-rounds">0</span>
+                <span class="lbl">Rounds Finished</span>
+              </div>
+              <div class="highlight-item">
+                <span class="num" id="history-today-chants">0</span>
+                <span class="lbl">Total Chants</span>
+              </div>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-label">
+                <span>Daily 16-Round Goal</span>
+                <span id="history-goal-pct">0%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" id="history-goal-bar"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="history-section-header">
+            <h3>Recent Days</h3>
+          </div>
+          <div class="history-list" id="history-list-container">
+            <!-- Dynamic history rows generated via JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="modal-settings" class="modal-backdrop hidden">
+      <div class="modal-card settings-card">
+        <div class="drawer-header">
+          <div class="drawer-title">
+            <span class="icon">⚙️</span>
+            <h2>Preferences</h2>
+          </div>
+          <button id="btn-settings-close" class="close-btn" aria-label="Close Settings">✕</button>
+        </div>
+
+        <div class="settings-body">
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-label">Daily Round Target</span>
+              <span class="setting-sub">Standard ISKCON sadhana is 16 rounds</span>
+            </div>
+            <select id="select-target-rounds" class="setting-select">
+              <option value="4">4 Rounds</option>
+              <option value="8">8 Rounds</option>
+              <option value="16" selected>16 Rounds</option>
+              <option value="25">25 Rounds</option>
+              <option value="32">32 Rounds</option>
+              <option value="64">64 Rounds</option>
+              <option value="108">108 Rounds</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-label">Bell Sound on Each Tap</span>
+              <span class="setting-sub">Play a soft wooden bead click or quiet tick</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-tap-sound" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-label">Keep Screen Awake</span>
+              <span class="setting-sub">Prevents phone sleep during chanting</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggle-wake-lock" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <hr class="divider">
+
+          <div class="danger-zone">
+            <h3>Reset Options</h3>
+            <p class="sub-warning">Protected with confirmation to prevent accidental loss.</p>
+            <div class="danger-buttons">
+              <button id="btn-reset-today" class="btn-warning-outline">Reset Today's Counts</button>
+              <button id="btn-reset-lifetime" class="btn-danger-outline">Reset All Lifetime Data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
